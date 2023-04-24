@@ -8,8 +8,9 @@ async function checkHotels(userId: number) {
   if (!enrollment) throw notFoundError();
 
   const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+  if (!ticket) throw notFoundError();
 
-  if (!ticket || ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
+  if (ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
     throw paymentRequiredError();
   }
 }
@@ -18,6 +19,7 @@ async function getAllHotels(userId: number) {
   await checkHotels(userId);
 
   const hotels = await hotelsRepository.findHotels();
+  if (!hotels.length) throw notFoundError();
   return hotels;
 }
 

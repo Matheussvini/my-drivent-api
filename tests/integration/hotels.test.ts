@@ -75,6 +75,18 @@ describe('GET /hotels', () => {
       expect(response.status).toEqual(httpStatus.NOT_FOUND);
     });
 
+    it('should respond with status 404 when user has no ticket ', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeRemote();
+      //ticketType and enrollment are not used but it is necessary for validation of the "checkHotel" function
+
+      const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toEqual(httpStatus.NOT_FOUND);
+    });
+
     it('should respond with status 200 and a list of hotels', async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
@@ -101,6 +113,20 @@ describe('GET /hotels', () => {
           }),
         ]),
       );
+    });
+
+    it('should respond with status 404 when there are no hotels', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const payment = await createPayment(ticket.id, ticketType.price);
+      //payment is not used but it is necessary for validation of the "checkHotel" function
+
+      const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toEqual(httpStatus.NOT_FOUND);
     });
   });
 });
@@ -150,6 +176,18 @@ describe('GET /hotels/:id', () => {
 
       const ticketType = await createTicketTypeRemote();
       //ticketType is not used but it is necessary for validation of the "checkHotel" function
+
+      const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toEqual(httpStatus.NOT_FOUND);
+    });
+
+    it('should respond with status 404 when user has no ticket ', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeRemote();
+      //ticketType and enrollment are not used but it is necessary for validation of the "checkHotel" function
 
       const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
 
