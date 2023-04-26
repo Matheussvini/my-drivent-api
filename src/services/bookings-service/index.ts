@@ -7,10 +7,10 @@ import { exclude } from '@/utils/prisma-utils';
 
 async function checkPayment(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
-  if (!enrollment) throw notFoundError();
+  if (!enrollment) throw forbiddenError();
 
   const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
-  if (!ticket) throw notFoundError();
+  if (!ticket) throw forbiddenError();
 
   if (ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
     throw paymentRequiredError();
