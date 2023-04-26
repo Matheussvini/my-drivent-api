@@ -38,7 +38,7 @@ describe('GET /booking', () => {
       expect(response.status).toBe(httpStatus.NOT_FOUND);
     });
 
-    it('should return 200 if user has a booking', async () => {
+    it('should return 200 if user has a booking and return this booking', async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
@@ -114,14 +114,14 @@ describe('POST /booking', () => {
       expect(response.status).toBe(httpStatus.CONFLICT);
     });
 
-    it('should return 200 if the booking is created', async () => {
+    it('should return 200 if the booking is created and return bookingId', async () => {
       const { token, roomId } = await createFunctionalRoom();
 
       const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId });
 
       expect(response.status).toBe(httpStatus.OK);
       expect(response.body).toEqual({
-        roomId,
+        bookingId: expect.any(Number),
       });
     });
   });

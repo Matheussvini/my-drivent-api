@@ -19,7 +19,7 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
   const { roomId } = req.body as InputBookingBody;
   try {
     const booking = await bookingsService.createBooking(userId, roomId);
-    return res.status(httpStatus.OK).send({ roomId: booking.roomId });
+    return res.status(httpStatus.OK).send({ bookingId: booking.id });
   } catch (error) {
     if (error.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
     if (error.name === 'ConflictError') return res.sendStatus(httpStatus.CONFLICT);
