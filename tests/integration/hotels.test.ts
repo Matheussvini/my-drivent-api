@@ -2,7 +2,6 @@ import httpStatus from 'http-status';
 import supertest from 'supertest';
 import * as jwt from 'jsonwebtoken';
 import { TicketStatus } from '@prisma/client';
-import { createHotel, createRoomWithHotelId } from '../factories/hotels-factory';
 import {
   createEnrollmentWithAddress,
   createPayment,
@@ -10,6 +9,8 @@ import {
   createTicketTypeRemote,
   createTicketTypeWithHotel,
   createUser,
+  createHotel,
+  createRoomWithHotelId,
 } from '../factories';
 import { cleanDb, generateValidToken } from '../helpers';
 import app, { init } from '@/app';
