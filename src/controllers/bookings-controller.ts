@@ -19,7 +19,7 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
   const { roomId } = req.body as InputBookingBody;
   try {
     const booking = await bookingsService.createBooking(userId, roomId);
-    return res.status(httpStatus.CREATED).send({ bookingId: booking.id });
+    return res.status(httpStatus.OK).send({ roomId: booking.roomId });
   } catch (error) {
     if (error.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
     if (error.name === 'ConflictError') return res.sendStatus(httpStatus.CONFLICT);
@@ -34,6 +34,7 @@ export async function replaceBooking(req: AuthenticatedRequest, res: Response) {
   const { roomId } = req.body as InputBookingBody;
   try {
     const booking = await bookingsService.replaceBooking({ userId, bookingId, roomId });
+    console.log('httpStatus OK', httpStatus.OK);
     return res.status(httpStatus.OK).send({ bookingId: booking.id });
   } catch (error) {
     if (error.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
