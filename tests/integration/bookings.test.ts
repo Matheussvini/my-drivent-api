@@ -196,14 +196,14 @@ describe('POST /booking', () => {
   });
 });
 
-describe('PATCH /booking/:bookingId', () => {
+describe('PUT /booking/:bookingId', () => {
   testInvalidToken();
 
   describe('when token is valid', () => {
     it('should return 403 if user has no booking', async () => {
       const { token, roomId } = await createFunctionalRoom();
 
-      const response = await server.patch('/booking/1').set('Authorization', `Bearer ${token}`).send({ roomId });
+      const response = await server.put('/booking/1').set('Authorization', `Bearer ${token}`).send({ roomId });
 
       expect(response.status).toBe(httpStatus.FORBIDDEN);
     });
@@ -213,7 +213,7 @@ describe('PATCH /booking/:bookingId', () => {
       const { id: bookingId } = await createBooking(userId, roomId);
 
       const response = await server
-        .patch(`/booking/${bookingId + 1}`)
+        .put(`/booking/${bookingId + 1}`)
         .set('Authorization', `Bearer ${token}`)
         .send({ roomId });
 
@@ -224,7 +224,7 @@ describe('PATCH /booking/:bookingId', () => {
       const { token, roomId, userId } = await createFunctionalRoom();
       const { id: bookingId } = await createBooking(userId, roomId);
 
-      const response = await server.patch(`/booking/${bookingId}`).set('Authorization', `Bearer ${token}`).send({});
+      const response = await server.put(`/booking/${bookingId}`).set('Authorization', `Bearer ${token}`).send({});
 
       expect(response.status).toBe(httpStatus.BAD_REQUEST);
     });
@@ -234,7 +234,7 @@ describe('PATCH /booking/:bookingId', () => {
       const { id: bookingId } = await createBooking(userId, roomId);
 
       const response = await server
-        .patch(`/booking/${bookingId}`)
+        .put(`/booking/${bookingId}`)
         .set('Authorization', `Bearer ${token}`)
         .send({ roomId: roomId + 1 });
 
@@ -253,7 +253,7 @@ describe('PATCH /booking/:bookingId', () => {
       await createPayment(ticket.id, ticketType.price);
 
       const response = await server
-        .patch(`/booking/${bookingId}`)
+        .put(`/booking/${bookingId}`)
         .set('Authorization', `Bearer ${token}`)
         .send({ roomId });
 
@@ -266,7 +266,7 @@ describe('PATCH /booking/:bookingId', () => {
       const room2 = await createRoomWithHotelId(hotelId);
 
       const response = await server
-        .patch(`/booking/${bookingId}`)
+        .put(`/booking/${bookingId}`)
         .set('Authorization', `Bearer ${token}`)
         .send({ roomId: room2.id });
 
