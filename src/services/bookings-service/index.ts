@@ -22,7 +22,7 @@ async function checkRoom(roomId: number) {
   if (!room) throw notFoundError();
 
   const count = await bookingsRepository.countBookingsByRoomId(roomId);
-  if (count >= room.capacity) throw forbiddenError('Room is already full');
+  if (count === room.capacity) throw forbiddenError('Room is already full');
 }
 
 async function getUserBooking(userId: number) {
@@ -44,7 +44,7 @@ async function createBooking(userId: number, roomId: number) {
 
 async function replaceBooking({ userId, bookingId, roomId }: InputBookingReplace) {
   const booking = await bookingsRepository.findUserBooking(userId);
-  if (!booking) throw notFoundError();
+  if (!booking) throw forbiddenError();
 
   await checkRoom(userId);
 
