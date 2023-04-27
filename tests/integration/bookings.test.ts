@@ -12,6 +12,8 @@ import {
   createRoomWithHotelId,
   createBooking,
   createFunctionalRoom,
+  createTicketTypeRemote,
+  createTicketTypeWithoutHotel,
 } from '../factories';
 import app, { init } from '@/app';
 
@@ -114,13 +116,69 @@ describe('POST /booking', () => {
       expect(response.status).toBe(httpStatus.CONFLICT);
     });
 
-    it("should return 403 if user doesn't even have ticket", async () => {
+    it("should return 403 if user doesn't even have enrollment", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       const hotel = await createHotel();
       const room = await createRoomWithHotelId(hotel.id);
 
       const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
+
+      expect(response.status).toBe(httpStatus.FORBIDDEN);
+    });
+
+    it("should return 403 if user doesn't even have ticket", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      await createEnrollmentWithAddress(user);
+      const hotel = await createHotel();
+      const room = await createRoomWithHotelId(hotel.id);
+
+      const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
+
+      expect(response.status).toBe(httpStatus.FORBIDDEN);
+    });
+
+    it('should return 403 if user has ticket but ticket is not paid', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
+      const hotel = await createHotel();
+      const { id: roomId } = await createRoomWithHotelId(hotel.id);
+
+      const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId });
+
+      expect(response.status).toBe(httpStatus.FORBIDDEN);
+    });
+
+    it('should return 403 if user has ticket but ticket is remote', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeRemote();
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      await createPayment(ticket.id, ticketType.price);
+      const hotel = await createHotel();
+      const { id: roomId } = await createRoomWithHotelId(hotel.id);
+
+      const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId });
+
+      expect(response.status).toBe(httpStatus.FORBIDDEN);
+    });
+
+    it('should return 403 if user has ticket but ticket does not include hotel', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithoutHotel();
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      await createPayment(ticket.id, ticketType.price);
+      const hotel = await createHotel();
+      const { id: roomId } = await createRoomWithHotelId(hotel.id);
+
+      const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId });
 
       expect(response.status).toBe(httpStatus.FORBIDDEN);
     });
