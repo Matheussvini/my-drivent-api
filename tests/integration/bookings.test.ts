@@ -137,3 +137,85 @@ describe('POST /booking', () => {
     });
   });
 });
+
+describe('PATCH /booking/:bookingId', () => {
+  testInvalidToken();
+
+  describe('when token is valid', () => {
+    it('should return 403 if user has no booking', async () => {
+      const { token, roomId } = await createFunctionalRoom();
+
+      const response = await server.patch('/booking/1').set('Authorization', `Bearer ${token}`).send({ roomId });
+
+      expect(response.status).toBe(httpStatus.FORBIDDEN);
+    });
+
+    it('should return 403 if user has booking but bookingId is invalid', async () => {
+      const { token, roomId, userId } = await createFunctionalRoom();
+      const { id: bookingId } = await createBooking(userId, roomId);
+
+      const response = await server
+        .patch(`/booking/${bookingId + 1}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ roomId });
+
+      expect(response.status).toBe(httpStatus.FORBIDDEN);
+    });
+
+    it('should return 400 if roomId is not provided', async () => {
+      const { token, roomId, userId } = await createFunctionalRoom();
+      const { id: bookingId } = await createBooking(userId, roomId);
+
+      const response = await server.patch(`/booking/${bookingId}`).set('Authorization', `Bearer ${token}`).send({});
+
+      expect(response.status).toBe(httpStatus.BAD_REQUEST);
+    });
+
+    it('should return 404 if roomId is invalid', async () => {
+      const { token, roomId, userId } = await createFunctionalRoom();
+      const { id: bookingId } = await createBooking(userId, roomId);
+
+      const response = await server
+        .patch(`/booking/${bookingId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ roomId: roomId + 1 });
+
+      expect(response.status).toBe(httpStatus.NOT_FOUND);
+    });
+
+    it('should return 403 if room is not available', async () => {
+      const { userId, roomId } = await createFunctionalRoom();
+      const { id: bookingId } = await createBooking(userId, roomId);
+
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketTypeWithHotel();
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      await createPayment(ticket.id, ticketType.price);
+
+      const response = await server
+        .patch(`/booking/${bookingId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ roomId });
+
+      expect(response.status).toBe(httpStatus.FORBIDDEN);
+    });
+
+    it('should return 200 if the booking is updated and return bookingId', async () => {
+      const { token, roomId, userId, hotelId } = await createFunctionalRoom();
+      const { id: bookingId } = await createBooking(userId, roomId);
+      const room2 = await createRoomWithHotelId(hotelId);
+
+      const response = await server
+        .patch(`/booking/${bookingId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ roomId: room2.id });
+
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual({
+        bookingId,
+      });
+    });
+  });
+});

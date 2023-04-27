@@ -45,8 +45,9 @@ async function createBooking(userId: number, roomId: number) {
 async function replaceBooking({ userId, bookingId, roomId }: InputBookingReplace) {
   const booking = await bookingsRepository.findUserBooking(userId);
   if (!booking) throw forbiddenError();
+  if (booking.id !== bookingId) throw forbiddenError(`Invalid bookingId, user's bookingId is ${booking.id}`);
 
-  await checkRoom(userId);
+  await checkRoom(roomId);
 
   return await bookingsRepository.replaceBooking(bookingId, roomId);
 }

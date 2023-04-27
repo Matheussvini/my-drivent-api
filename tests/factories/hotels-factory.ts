@@ -45,5 +45,5 @@ export async function createFunctionalRoom() {
   const hotel = await createHotel();
   const room = await createRoomWithHotelId(hotel.id);
 
-  return { token, userId: user.id, roomId: room.id };
+  return { token, userId: user.id, roomId: room.id, hotelId: hotel.id };
 }

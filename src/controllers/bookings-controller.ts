@@ -32,8 +32,7 @@ export async function replaceBooking(req: AuthenticatedRequest, res: Response) {
   const { bookingId } = req.params as unknown as InputBookingParams;
   const { roomId } = req.body as InputBookingBody;
   try {
-    const booking = await bookingsService.replaceBooking({ userId, bookingId, roomId });
-    console.log('httpStatus OK', httpStatus.OK);
+    const booking = await bookingsService.replaceBooking({ userId, bookingId: Number(bookingId), roomId });
     return res.status(httpStatus.OK).send({ bookingId: booking.id });
   } catch (error) {
     if (error.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
