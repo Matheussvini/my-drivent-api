@@ -13,7 +13,7 @@ async function checkPayment(userId: number) {
   if (!ticket) throw forbiddenError();
 
   if (ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
-    throw paymentRequiredError();
+    throw forbiddenError();
   }
 }
 

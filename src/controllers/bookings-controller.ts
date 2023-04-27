@@ -23,7 +23,6 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
   } catch (error) {
     if (error.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
     if (error.name === 'ConflictError') return res.sendStatus(httpStatus.CONFLICT);
-    if (error.name === 'PaymentRequiredError') return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
     return res.sendStatus(httpStatus.FORBIDDEN);
   }
 }
